@@ -674,6 +674,8 @@ var FeatureViewer = (function () {
                         filter: object.filter
                     });
                     Yposition += negativeNumbers ? pathLevel-5 : 0;
+                } else if (object.type === "mutation") { //#VENUS#//
+                    fillSVG.mutation(object);
                 }
             },
             sequence: function (seq, position, start) {
@@ -999,7 +1001,27 @@ var FeatureViewer = (function () {
                     .call(d3.helper.tooltip(object));
 
                 forcePropagation(rects);
-            }
+            },
+            mutation: function (object) {
+                let h = d3.select(".background").attr("height");
+                svgContainer.append("rect")
+                        .data(object.data)
+                        .attr("width", function (d) {
+                            if (scaling(d.x + 0.4) - scaling(d.x - 0.4) < 2) return 2;
+                            else return scaling(d.x + 0.4) - scaling(d.x - 0.4);
+                        })
+                        .attr("height", h)
+                        // .attr("transform", function (d) {
+                        //     return "translate(" + rectX(d) + ",0)"
+                        // })
+                        .attr("x", function (d) {
+                            return scaling(d.x - 0.4)
+                        })
+                        .attr("class",object.className)
+                        .style("fill",object.color)
+                        .style("z-index", -1)
+                        .style("cursor","pointer");
+            } //#VENUS#//
         };
 
         this.showFilteredFeature = function(className, color, baseUrl){
@@ -1111,7 +1133,7 @@ var FeatureViewer = (function () {
                 var transit;
                 if (animation) {
                     transit = svgContainer.selectAll("." + object.className)
-    //                    .data(object.data)
+                        //.data(object.data)
                         .transition()
                         .duration(500);
                 }
@@ -1119,9 +1141,6 @@ var FeatureViewer = (function () {
                     transit = svgContainer.selectAll("." + object.className);
                 }
                 transit
-//                    .data(object.data)
-                    //.transition()
-                    //.duration(500)
                     .attr("x", function (d) {
                         return scaling(d.x - 0.4)
                     })
@@ -1194,9 +1213,10 @@ var FeatureViewer = (function () {
                         return scaling(i + start)
                     });
             }
+            // #VENUS# mutation type just uses unique function
         };
 
-        var brush = d3.svg.brush()
+        var brush = d3.svg.brush() //svg.brush is the square selector thinggy
             .x(scaling)
             //.on("brush", brushmove)
             .on("brushend", brushend);
@@ -1222,6 +1242,9 @@ var FeatureViewer = (function () {
         }
 
         function brushend() {
+            // Change view based upon brush click ending.
+            // in turn it calls transition_data which shifts the blocks.
+            // in turn calls transition, which is an object of functions.
             d3.select(div).selectAll('div.selectedRect').remove();
             if (Object.keys(featureSelected).length !== 0 && featureSelected.constructor === Object) {
                 d3.select(featureSelected.id).style("fill", featureSelected.originalColor);
@@ -1394,6 +1417,8 @@ var FeatureViewer = (function () {
                     transition.line(o);
                 } else if (o.type === "text") {
                     transition.text(o, start);
+                } else if (o.type === "mutation") { //#VENUS#
+                    transition.unique(o);
                 }
             });
         }
@@ -1786,12 +1811,12 @@ var FeatureViewer = (function () {
 
             updateSVGHeight(Yposition);
 
-        }
+        };
 
         initSVG(div, options);
 
         this.addFeature = function (object) {
-            Yposition += 20;
+            if (object.type !== "mutation") Yposition += 20;
             features.push(object);
             fillSVG.typeIdentifier(object);
             updateYaxis();
@@ -1804,8 +1829,8 @@ var FeatureViewer = (function () {
             if (SVGOptions.verticalLine) d3.selectAll(".Vline").style("height", (Yposition + 50) + "px");
             if (d3.selectAll(".element")[0].length > 1500) animation = false;
 
-        }
-        
+        };
+
         this.clearInstance = function (){
             $(window).off("resize", resizeCallback);
             svg = null;
@@ -1825,3 +1850,7 @@ var FeatureViewer = (function () {
 if ( typeof module === "object" && typeof module.exports === "object" ) {
     module.exports = FeatureViewer;
 }
+
+/* addFeature(feature) calls the function typeIdentifier of the object `fillSVG(feature)` that calls other functions within that based upon `feature.type`.
+When there is a change to svg.brush `transition_data(features, currentShift)` is called, which works similarly except the specific function are within `transition`.
+ */
