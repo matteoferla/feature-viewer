@@ -5,6 +5,8 @@ Cf. [venus.sgc.ox.ac.uk](venus.sgc.ox.ac.uk).
 In Venus it is important to mark two things in the feature viewer. The first is where is the mutation.
 The second where is the stucture being shown.
 
+The code could do with being a ES6 class. I saw that the fork [EVcouplings/feature-viewer](https://github.com/EVcouplings/feature-viewer) has converted it to React.
+
 # neXtProt - The knowledge resource on human proteins
 
 This is a code repository for the SIB - Swiss Institute of Bioinformatics CALIPHO group neXtProt project
