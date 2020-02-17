@@ -1,3 +1,10 @@
+# Modified Feature-viewer for VENUS
+
+Cf. [venus.sgc.ox.ac.uk](venus.sgc.ox.ac.uk).
+
+In Venus it is important to mark two things in the feature viewer. The first is where is the mutation.
+The second where is the stucture being shown.
+
 # neXtProt - The knowledge resource on human proteins
 
 This is a code repository for the SIB - Swiss Institute of Bioinformatics CALIPHO group neXtProt project
